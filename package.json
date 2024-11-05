@@ -1,0 +1,15 @@
+{
+  "name": "md2epub",
+  "version": "0.0.1",
+  "description": "Build epub from any markdown project",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
