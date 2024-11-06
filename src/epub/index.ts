@@ -167,13 +167,14 @@ export class EPub {
 
       // Parse the content
       const $ = loadHtml(content.data, {
-        xml: {
+        xmlMode:false,
+        xml:{
+          decodeEntities: false,
           lowerCaseTags: true,
           recognizeSelfClosing: true
-        }
-      });
+      }});
 
-      $($('body > *').get().reverse()).each((idx, elem: any) => {
+      $($('*').get().reverse()).each((idx, elem: any) => {
         const attrs = elem.attribs;
         if (['img', 'br', 'hr'].includes(elem.name)) {
           if (elem.name === 'img') {
@@ -234,7 +235,7 @@ export class EPub {
         id: id,
         href: href,
         title: content.title,
-        data: $.html('body > *', { xmlMode: true }),
+        data: $.html('*'),
         url: content.url ?? null,
         author: content.author
           ? (typeof content.author === 'string' ? [content.author] : content.author)
@@ -312,6 +313,7 @@ export class EPub {
 
     // Write content files
     contents.forEach((content) => {
+      console.log(content)
       let data = `${docHeader}
   <head>
   <title>${encodeXML(content.title || '')}</title>
@@ -320,7 +322,7 @@ export class EPub {
 <body>
 `;
       data += content.title && this.appendChapterTitles ? `<h1>${encodeXML(content.title)}</h1>` : '';
-      data += content.title && content.author && content.author.length ? `<p class='epub-author'>${encodeXML(content.author.join(', '))}</p>` : '';
+      data += content.title && this.appendChapterTitles && content.author && content.author.length ? `<p class='epub-author'>${encodeXML(content.author.join(', '))}</p>` : '';
       data += content.title && content.url ? `<p class='epub-link'><a href='${content.url}'>${content.url}</a></p>` : '';
       data += `${content.data}</body></html>`;
       writeFileSync(content.filePath, data);
@@ -448,9 +450,9 @@ export class EPub {
     }
 
     mkdirSync(resolve(this.tempEpubDir, './OEBPS/images'), {recursive: true});
-    for (let index = 0; index < images.length; index++) {
-      await this.downloadImage(images[index]);
-    }
+    // for (let index = 0; index < images.length; index++) {
+    //   await this.downloadImage(images[index]);
+    // }
   }
 
   private generate (): Promise<void> {
