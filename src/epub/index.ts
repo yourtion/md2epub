@@ -30,6 +30,7 @@ export interface EpubContentOptions {
   filename?: string;
   excludeFromToc?: boolean;
   beforeToc?: boolean;
+  baseURI?: string;
 }
 
 export interface EpubOptions {
@@ -167,7 +168,8 @@ export class EPub {
 
       // Parse the content
       const $ = loadHtml(content.data, {
-        xmlMode:false,
+        baseURI: content.baseURI,
+        xmlMode: true,
         xml:{
           decodeEntities: false,
           lowerCaseTags: true,
@@ -204,9 +206,9 @@ export class EPub {
 
       $('img').each((idx, elem) => {
         let url = $(elem).attr('src');
-        if (url === undefined) { return; }
+        if (!url) { return; }
         // 去掉url中存在的参数
-        url = url.split("?")[0] || url;
+        url = decodeURIComponent(url.split("?")[0] || url);
 
         let extension, id;
         const image = this.images.find((element) => element.url === url);
@@ -214,7 +216,7 @@ export class EPub {
           id = image.id;
           extension = image.extension;
         } else {
-          id = basename(url, extname(url)) || uuid();
+          id = basename(url, extname(url)).replace(/ /g, "_") || uuid();
           const mediaType = mime.getType(url.replace(/\?.*/, ''));
           if (mediaType === null) {
             if (this.verbose) { console.error('[Image Error]', `The image can't be processed : ${url}`); }
@@ -225,6 +227,9 @@ export class EPub {
             if (this.verbose) { console.error('[Image Error]', `The image can't be processed : ${url}`); }
             return;
           }
+          if(content.baseURI) {
+            url = resolve(content.baseURI, url);
+          } 
           this.images.push({ id, url, dir, mediaType, extension });
         }
         $(elem).attr('src', `images/${id}.${extension}`);
@@ -313,7 +318,6 @@ export class EPub {
 
     // Write content files
     contents.forEach((content) => {
-      console.log(content)
       let data = `${docHeader}
   <head>
   <title>${encodeXML(content.title || '')}</title>
@@ -450,9 +454,9 @@ export class EPub {
     }
 
     mkdirSync(resolve(this.tempEpubDir, './OEBPS/images'), {recursive: true});
-    // for (let index = 0; index < images.length; index++) {
-    //   await this.downloadImage(images[index]);
-    // }
+    for (let index = 0; index < images.length; index++) {
+      await this.downloadImage(images[index]);
+    }
   }
 
   private generate (): Promise<void> {
