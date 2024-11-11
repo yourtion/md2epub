@@ -3,28 +3,43 @@ import { EPub, EpubOptions } from "../epub";
 import { readFileSync } from "fs";
 import { marked } from "marked";
 
+export interface PluginOptions {
+  title?: string;
+  cover?: string;
+  author?: string;
+  distPath?: string;
+  tmpDir?: string;
+  verbose?: boolean;
+}
+
+
 export abstract class Plugin {
   protected dir: string;
+  protected options?: PluginOptions;
 
-  constructor(dir: string) {
+  constructor(dir: string, options?: PluginOptions) {
     this.dir = dir;
+    this.options = {...options};
   }
 
   protected abstract getList():Array<[string, string]>;
   protected abstract getInfo() : {
-    title: string;
-    description: string;
-    cover: string;
+    title?: string;
+    description?: string;
+    cover?: string;
     author?:string;
   };
 
   async build(): Promise<void> {
+    const cover = this.options?.cover ? path.resolve(process.cwd(), this.options?.cover) : undefined;
+    
     const option: EpubOptions = {
+      tempDir: "/tmp",
+      appendChapterTitles: false,
+      ...this.options,
+      cover,
       ...this.getInfo(),
       content: [],
-      tempDir: "/tmp",
-      verbose: true,
-      appendChapterTitles: false,
     };
   
     const list = this.getList();
@@ -40,7 +55,7 @@ export abstract class Plugin {
       });
       
     }
-    const filename = "title";
+    const filename = this.options?.title?? "title";
     return new EPub(option, path.resolve(this.dir, `${filename}.epub`)).render();
   }
 

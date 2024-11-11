@@ -7,10 +7,6 @@ export default class Docsify extends Plugin {
 
   getInfo() {
     return {
-      title: "tmp",
-      description: "tmp",
-      // cover: "",
-      author:"",
     }
   }
 
