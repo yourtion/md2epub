@@ -29,17 +29,12 @@ export abstract class Plugin {
   
     const list = this.getList();
     for (const [name, file] of list) {
-      // console.log(name, file)
-      if(file.startsWith("#")) {
-        continue;
-      }
       const fileName = path.resolve(this.dir, file);
       const fileConetnt = readFileSync(fileName).toString();
 
       const data = await marked.parse(fileConetnt);
       option.content.push({
         title: name,
-        author: "",
         data,
         baseURI: path.dirname(fileName)
       });
