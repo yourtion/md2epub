@@ -6,8 +6,8 @@ program
   .option('-t --title <title>')
   .option('-c --cover <cover>')
   .option('-a --author <author>')
-  .option('-d --distPath <distPath>')
-  .option('-tmp --tmpDir <temp_dir>')
+  .option('--dist <distPath>')
+  .option('--tmpDir <temp_dir>')
   .option('-v --verbose', 'verbose mode');
 
 program.parse();
@@ -16,4 +16,4 @@ const options = program.opts();
 
 const dir = program.args[0];
 const p = new Docsify(dir, options);
-p.build().then()
+p.build().then().catch();

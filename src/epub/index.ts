@@ -15,7 +15,7 @@ const allowedAttributes = ['content', 'alt', 'id', 'title', 'src', 'href', 'abou
 const allowedXhtml11Tags = ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'address', 'hr', 'pre', 'blockquote', 'center', 'ins', 'del', 'a', 'span', 'bdo', 'br', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'bar', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'basefont', 'font', 'object', 'param', 'img', 'table', 'caption', 'colgroup', 'col', 'thead', 'tfoot', 'tbody', 'tr', 'th', 'td', 'embed', 'applet', 'iframe', 'img', 'map', 'noscript', 'ns:svg', 'object', 'script', 'table', 'tt', 'var'];
 
 // UUID generation
-function uuid () {
+function uuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
@@ -36,8 +36,8 @@ export interface EpubContentOptions {
 export interface EpubOptions {
   id?: string;
   title: string;
-  description: string;
-  cover: string;
+  description?: string;
+  cover?: string;
   publisher?: string;
   author?: Array<string> | string;
   tocTitle?: string;
@@ -105,13 +105,13 @@ export class EPub {
   output: string;
   imageCacheDir?: string;
 
-  constructor (options: EpubOptions, output: string) {
+  constructor(options: EpubOptions, output: string) {
     // File ID
     this.uuid = options.id ?? uuid();
 
     // Required options
     this.title = options.title;
-    this.description = options.description;
+    this.description = options.description ?? "";
     this.output = output;
 
     // Options with defaults
@@ -170,11 +170,12 @@ export class EPub {
       const $ = loadHtml(content.data, {
         baseURI: content.baseURI,
         xmlMode: true,
-        xml:{
+        xml: {
           decodeEntities: false,
           lowerCaseTags: true,
           recognizeSelfClosing: true
-      }});
+        }
+      });
 
       $($('*').get().reverse()).each((idx, elem: any) => {
         const attrs = elem.attribs;
@@ -227,9 +228,9 @@ export class EPub {
             if (this.verbose) { console.error('[Image Error]', `The image can't be processed : ${url}`); }
             return;
           }
-          if(content.baseURI) {
+          if (content.baseURI) {
             url = resolve(content.baseURI, url);
-          } 
+          }
           this.images.push({ id, url, dir, mediaType, extension });
         }
         $(elem).attr('src', `images/${id}.${extension}`);
@@ -253,8 +254,8 @@ export class EPub {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async render (): Promise<any> {
-    if(this.cover) {
+  async render(): Promise<any> {
+    if (this.cover) {
       this.coverMediaType = mime.getType(this.cover);
       if (this.coverMediaType === null) { throw new Error(`The cover image can't be processed : ${this.cover}`); }
       this.coverExtension = mime.getExtension(this.coverMediaType);
@@ -277,7 +278,7 @@ export class EPub {
     return { result: 'ok' };
   }
 
-  private async generateTempFile (contents: Array<EpubContent>) {
+  private async generateTempFile(contents: Array<EpubContent>) {
     // Create the document's Header
     const docHeader = (this.version === 2)
       ? `<?xml version="1.0" encoding="UTF-8"?>
@@ -295,8 +296,8 @@ export class EPub {
       mkdirSync(this.tempEpubDir);
       mkdirSync(resolve(this.tempEpubDir, './OEBPS'));
     }
-    if(this.imageCacheDir) {
-      mkdirSync(this.imageCacheDir, {recursive: true});
+    if (this.imageCacheDir) {
+      mkdirSync(this.imageCacheDir, { recursive: true });
     }
 
     // Copy the CSS style
@@ -333,7 +334,7 @@ export class EPub {
     });
 
     // write meta-inf/container.xml
-    mkdirSync(this.tempEpubDir + '/META-INF', { recursive:true });
+    mkdirSync(this.tempEpubDir + '/META-INF', { recursive: true });
     writeFileSync(`${this.tempEpubDir}/META-INF/container.xml`, '<?xml version="1.0" encoding="UTF-8" ?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
 
     if (this.version === 2) {
@@ -367,7 +368,7 @@ export class EPub {
     writeFileSync(resolve(this.tempEpubDir, './OEBPS/toc.xhtml'), await renderFile(htmlTocPath, this));
   }
 
-  private async makeCover (): Promise<void> {
+  private async makeCover(): Promise<void> {
     if (this.cover === null) {
       return;
     }
@@ -400,7 +401,7 @@ export class EPub {
     });
   }
 
-  private async downloadImage (image: EpubImage): Promise<void> {
+  private async downloadImage(image: EpubImage): Promise<void> {
     const filename = resolve(this.tempEpubDir, `./OEBPS/images/${image.id}.${image.extension}`);
 
     if (image.url.indexOf('file://') === 0) {
@@ -410,10 +411,10 @@ export class EPub {
     }
 
     let imgPath: string;
-    if(this.imageCacheDir) {
+    if (this.imageCacheDir) {
       imgPath = resolve(this.imageCacheDir, `${image.id}.${image.extension}`);
       // 替换已经存在的缓存图片文件
-      if(existsSync(imgPath)) {
+      if (existsSync(imgPath)) {
         image.url = imgPath;
       }
     }
@@ -448,18 +449,18 @@ export class EPub {
     });
   }
 
-  private async downloadAllImage (images: Array<EpubImage>): Promise<void> {
+  private async downloadAllImage(images: Array<EpubImage>): Promise<void> {
     if (images.length === 0) {
       return;
     }
 
-    mkdirSync(resolve(this.tempEpubDir, './OEBPS/images'), {recursive: true});
+    mkdirSync(resolve(this.tempEpubDir, './OEBPS/images'), { recursive: true });
     for (let index = 0; index < images.length; index++) {
       await this.downloadImage(images[index]);
     }
   }
 
-  private generate (): Promise<void> {
+  private generate(): Promise<void> {
     // Thanks to Paul Bradley
     // http://www.bradleymedia.org/gzip-markdown-epub/ (404 as of 28.07.2016)
     // Web Archive URL:
