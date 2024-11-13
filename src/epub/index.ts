@@ -9,6 +9,7 @@ import { copySync, removeSync, copyFileSync, mkdirSync } from 'fs-extra';
 import mime from 'mime';
 import { basename, dirname, resolve, extname } from 'path';
 import uslug from 'uslug';
+import { replaceMap } from './utils';
 
 // Allowed HTML attributes & tags
 const allowedAttributes = ['content', 'alt', 'id', 'title', 'src', 'href', 'about', 'accesskey', 'aria-activedescendant', 'aria-atomic', 'aria-autocomplete', 'aria-busy', 'aria-checked', 'aria-controls', 'aria-describedat', 'aria-describedby', 'aria-disabled', 'aria-dropeffect', 'aria-expanded', 'aria-flowto', 'aria-grabbed', 'aria-haspopup', 'aria-hidden', 'aria-invalid', 'aria-label', 'aria-labelledby', 'aria-level', 'aria-live', 'aria-multiline', 'aria-multiselectable', 'aria-orientation', 'aria-owns', 'aria-posinset', 'aria-pressed', 'aria-readonly', 'aria-relevant', 'aria-required', 'aria-selected', 'aria-setsize', 'aria-sort', 'aria-valuemax', 'aria-valuemin', 'aria-valuenow', 'aria-valuetext', 'class', 'content', 'contenteditable', 'contextmenu', 'datatype', 'dir', 'draggable', 'dropzone', 'hidden', 'hreflang', 'id', 'inlist', 'itemid', 'itemref', 'itemscope', 'itemtype', 'lang', 'media', 'ns1:type', 'ns2:alphabet', 'ns2:ph', 'onabort', 'onblur', 'oncanplay', 'oncanplaythrough', 'onchange', 'onclick', 'oncontextmenu', 'ondblclick', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'ondurationchange', 'onemptied', 'onended', 'onerror', 'onfocus', 'oninput', 'oninvalid', 'onkeydown', 'onkeypress', 'onkeyup', 'onload', 'onloadeddata', 'onloadedmetadata', 'onloadstart', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onpause', 'onplay', 'onplaying', 'onprogress', 'onratechange', 'onreadystatechange', 'onreset', 'onscroll', 'onseeked', 'onseeking', 'onselect', 'onshow', 'onstalled', 'onsubmit', 'onsuspend', 'ontimeupdate', 'onvolumechange', 'onwaiting', 'prefix', 'property', 'rel', 'resource', 'rev', 'role', 'spellcheck', 'style', 'tabindex', 'target', 'title', 'type', 'typeof', 'vocab', 'xml:base', 'xml:lang', 'xml:space', 'colspan', 'rowspan', 'epub:type', 'epub:prefix'];
@@ -330,7 +331,7 @@ export class EPub {
       data += content.title && this.appendChapterTitles && content.author && content.author.length ? `<p class='epub-author'>${encodeXML(content.author.join(', '))}</p>` : '';
       data += content.title && content.url ? `<p class='epub-link'><a href='${content.url}'>${content.url}</a></p>` : '';
       data += `${content.data}</body></html>`;
-      writeFileSync(content.filePath, data);
+      writeFileSync(content.filePath, replaceMap(data));
     });
 
     // write meta-inf/container.xml
