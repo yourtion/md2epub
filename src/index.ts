@@ -6,7 +6,7 @@ program
   .option('-t --title <title>')
   .option('-c --cover <cover>')
   .option('-a --author <author>')
-  .option('--dist <distPath>')
+  .option('--dist <dist>')
   .option('--tmpDir <temp_dir>')
   .option('-v --verbose', 'verbose mode');
 
@@ -15,5 +15,6 @@ const options = program.opts();
 // console.log(options);
 
 const dir = program.args[0];
+console.log(options);
 const p = new Docsify(dir, options);
 p.build().then().catch();

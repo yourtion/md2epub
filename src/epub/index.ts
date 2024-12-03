@@ -144,7 +144,7 @@ export class EPub {
     if (this.author.length === 0) {
       this.author = ["anonymous"];
     }
-    this.tocTitle = options.tocTitle ?? "Table Of Contents";
+    this.tocTitle = options.tocTitle ?? "目录";
     this.appendChapterTitles = options.appendChapterTitles ?? true;
     this.showToC = options.hideToC !== true;
     this.date = options.date ?? new Date().toISOString();
@@ -198,7 +198,6 @@ export class EPub {
     if (this.cover) {
       const templatePath =
         this.customHtmlCoverTemplatePath || resolve(__dirname, `./templates/epub${this.version}/cover.xhtml.ejs`);
-      console.log(templatePath);
       if (!existsSync(templatePath)) {
         throw new Error("Could not resolve path to cover template HTML.");
       }

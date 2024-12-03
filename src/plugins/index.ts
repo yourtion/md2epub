@@ -1,4 +1,4 @@
-import path from "path";
+import path, { basename, dirname, isAbsolute } from "path";
 import { EPub, EpubOptions } from "../epub";
 import { readFile } from "fs/promises";
 import { marked } from "marked";
@@ -7,7 +7,7 @@ export interface PluginOptions {
   title?: string;
   cover?: string;
   author?: string;
-  distPath?: string;
+  dist?: string;
   tmpDir?: string;
   verbose?: boolean;
 }
@@ -33,7 +33,6 @@ export abstract class Plugin {
   async build(): Promise<void> {
     const cover = this.options?.cover ? path.resolve(process.cwd(), this.options?.cover) : undefined;
     const option: EpubOptions = {
-      title: "title",
       tempDir: "/tmp",
       appendChapterTitles: false,
       ...this.options,
@@ -41,6 +40,9 @@ export abstract class Plugin {
       ...this.getInfo(),
       content: []
     };
+    if (!this.options?.title) {
+      option.title = basename(this.dir);
+    }
     const list = this.getList();
     for (const [name, file] of list) {
       const fileName = path.resolve(this.dir, file);
@@ -54,8 +56,13 @@ export abstract class Plugin {
       });
 
     }
-    const filename = this.options?.title ?? "title";
-    return new EPub(option, path.resolve(this.dir, `${filename}.epub`)).render();
+    const filename = option.title;
+    let dist = `${filename}.epub`
+    if (this.options?.dist) {
+      const distPath = this.options?.dist
+      dist = isAbsolute(distPath) ? distPath : path.resolve(process.cwd(), dist);
+    }
+    return new EPub(option, path.resolve(this.dir, dist)).render();
   }
 
 }
