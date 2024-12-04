@@ -6,8 +6,21 @@ import path from "path";
 export default class Docsify extends Plugin {
 
   getInfo() {
-    return {
-    }
+    const res:{
+      title?: string;
+      description?: string;
+      cover?: string;
+      author?: string;
+    } = {}
+    try {
+      const readme = readFileSync(path.resolve(this.dir, "README.md")).toString();
+      const firstLite = readme.split("\n")[0];
+      if(firstLite.startsWith("#")){
+        res["title"] = firstLite.substring(1).trim()
+      }
+    } catch (e) {}
+
+    return res;
   }
 
   getList(): Array<[string, string]> {

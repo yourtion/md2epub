@@ -33,13 +33,17 @@ export abstract class Plugin {
   async build(): Promise<void> {
     const cover = this.options?.cover ? path.resolve(process.cwd(), this.options?.cover) : undefined;
     const option: EpubOptions = {
+      title: "",
+      description: "",
+      publisher: "Yourtion Guo",
       tempDir: "/tmp",
       appendChapterTitles: false,
+      ...this.getInfo(),
       ...this.options,
       cover,
-      ...this.getInfo(),
       content: []
     };
+    option.author = option.author ?? this.options?.author?.split(",");
     if (!this.options?.title) {
       option.title = basename(this.dir);
     }
