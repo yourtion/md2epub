@@ -37,6 +37,7 @@ export abstract class Plugin {
       description: "",
       publisher: "Yourtion Guo",
       tempDir: "/tmp",
+      css: path.resolve(__dirname, "epub.css"),
       appendChapterTitles: false,
       ...this.getInfo(),
       ...this.options,

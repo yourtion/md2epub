@@ -3,7 +3,7 @@
     <title><%= encodeXML(title || "") %></title>
     <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
-<body>
+<body class="typo">
     <% if (title && appendChapterTitles) { %>
         <h1><%= encodeXML(title) %></h1>
     <% } %>
@@ -13,6 +13,8 @@
     <% if (title && url) { %>
         <p class='epub-link'><a href='<%= url %>'><%= url %></a></p>
     <% } %>
-    <%= data %>
+    <div class="entry heti">
+        <%= data %>
+    </div>
 </body>
 </html>
