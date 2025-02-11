@@ -20,6 +20,7 @@ export abstract class Plugin {
   constructor(dir: string, options?: PluginOptions) {
     this.dir = dir;
     this.options = { ...options };
+    console.log(this)
   }
 
   protected abstract getList(): Array<[string, string]>;
@@ -30,7 +31,7 @@ export abstract class Plugin {
     author?: string;
   };
 
-  async build(): Promise<void> {
+  async build(): Promise<{ result: string; }> {
     const cover = this.options?.cover ? path.resolve(process.cwd(), this.options?.cover) : undefined;
     const option: EpubOptions = {
       title: "",
@@ -61,12 +62,14 @@ export abstract class Plugin {
       });
 
     }
+    
     const filename = option.title;
     let dist = `${filename}.epub`
     if (this.options?.dist) {
       const distPath = this.options?.dist
-      dist = isAbsolute(distPath) ? distPath : path.resolve(process.cwd(), dist);
+      dist = isAbsolute(distPath) ? distPath : path.resolve(process.cwd(), distPath, dist);
     }
+    console.log(dist)
     return new EPub(option, path.resolve(this.dir, dist)).render();
   }
 

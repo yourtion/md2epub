@@ -1,4 +1,4 @@
-import Docsify from "./plugins/docsify"
+import VuePress from "./plugins/vuepress"
 import { program } from "commander";
 
 program
@@ -16,5 +16,5 @@ const options = program.opts();
 
 const dir = program.args[0];
 console.log(options);
-const p = new Docsify(dir, options);
+const p = new VuePress(dir, options);
 p.build().then().catch();
