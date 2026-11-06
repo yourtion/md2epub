@@ -13,7 +13,7 @@
         <dc:creator opf:role="aut" opf:file-as="<%= author.length ? author.join(",") : author %>"><%= author.length ? author.join(",") : author %></dc:creator>
         <dc:date opf:event="modification"><%= date %></dc:date>
         <dc:language><%= lang || "en" %></dc:language>
-        <meta name="cover" content="image_cover" />
+        <% if (cover) { %><meta name="cover" content="image_cover" /><% } %>
         <meta name="generator" content="epub-gen" />
 
     </metadata>
@@ -39,20 +39,20 @@
         <% }) %>
 
         <% fonts.forEach(function(font, index) { %>
-        <item id="font_<%= index %>" href="fonts/<%= font %>" media-type="application/x-font-ttf" />
+        <item id="font_<%= index %>" href="fonts/<%= font %>" media-type="<%= fontMediaType(font) %>" />
         <% }) %>
     </manifest>
 
     <spine toc="ncx">
         <% content.forEach(function(content, index){ %>
-            <% if(content.beforeToc && !content.excludeFromToc){ %>
+            <% if(content.beforeToc && !content.isCover){ %>
                 <itemref idref="content_<%= index %>_<%= content.id %>"/>
             <% } %>
         <% }) %>
         <% if (locals.cover) { %><itemref idref="cover"/><% } %>
         <% if (locals.showToC) { %><itemref idref="toc" /><% } %>
         <% content.forEach(function(content, index){ %>
-            <% if(!content.beforeToc && !content.excludeFromToc){ %>
+            <% if(!content.beforeToc && !content.isCover){ %>
                 <itemref idref="content_<%= index %>_<%= content.id %>"/>
             <% } %>
         <% }) %>

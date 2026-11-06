@@ -1,4 +1,4 @@
-import { STR_MAP } from "./constant";
+import { STR_MAP } from "./constant.js";
 
 const RegMap: [RegExp, string][] = Object.keys(STR_MAP)
   .map(key => [new RegExp(key, "g"), STR_MAP[key]]);

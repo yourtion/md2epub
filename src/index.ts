@@ -1,20 +1,18 @@
-import VuePress from "./plugins/vuepress"
-import { program } from "commander";
+import Docsify from './plugins/docsify/index.js';
+import type { PluginOptions } from './plugins/index.js';
 
-program
-  .argument('<source>', 'source')
-  .option('-t --title <title>')
-  .option('-c --cover <cover>')
-  .option('-a --author <author>')
-  .option('--dist <dist>')
-  .option('--tmpDir <temp_dir>')
-  .option('-v --verbose', 'verbose mode');
+export type { PluginOptions } from './plugins/index.js';
+export { EPub } from './epub/index.js';
+export type { EpubOptions, EpubContentOptions } from './epub/index.js';
 
-program.parse();
-const options = program.opts();
-// console.log(options);
+export interface BuildOptions extends PluginOptions {
+  format?: 'docsify';
+}
 
-const dir = program.args[0];
-console.log(options);
-const p = new VuePress(dir, options);
-p.build().then().catch();
+/** Build a local Docsify-style project without parsing process.argv. */
+export async function build(source: string, options: BuildOptions = {}) {
+  if (options.format && options.format !== 'docsify') {
+    throw new Error(`Unsupported format: ${options.format}. Supported format: docsify (_sidebar.md).`);
+  }
+  return new Docsify(source, options).build();
+}
