@@ -1,11 +1,34 @@
 {
   "name": "md2epub",
   "version": "0.0.1",
-  "description": "Build epub from any markdown project",
-  "main": "src/index.ts",
+  "description": "Build EPUB books from Docsify-style Markdown projects",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "md2epub": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "lint": "oxlint --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/clean.mjs && tsc && node scripts/copy-assets.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --deny-warnings src scripts test",
+    "lint:fix": "oxlint --fix src scripts test",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build",
+    "test:package": "node scripts/test-package.mjs",
+    "test:epubcheck": "npm run build && node scripts/test-epubcheck.mjs"
   },
   "dependencies": {
     "archiver": "^7.0.1",
@@ -20,7 +43,6 @@
     "mime": "^4.0.4",
     "rehype-parse": "^9.0.1",
     "rehype-stringify": "^10.0.1",
-    "tsx": "^4.19.2",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "uslug": "^1.0.4"
@@ -33,10 +55,15 @@
     "@types/hast": "^3.0.4",
     "@types/node": "^22.9.0",
     "@types/uslug": "^1.0.4",
+    "@xmldom/xmldom": "^0.8.11",
     "oxlint": "^0.11.1",
     "typescript": "^5.6.3"
   },
-  "keywords": [],
+  "keywords": [
+    "epub",
+    "markdown",
+    "docsify"
+  ],
   "author": "",
   "license": "ISC"
 }
